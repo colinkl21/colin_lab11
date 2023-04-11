@@ -1,7 +1,7 @@
 ---
 title: "Lab 11 - Smoking during pregnancy"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Colin Li"
+date: "4/4/2023"
 output: github_document
 ---
 
@@ -10,18 +10,151 @@ output: github_document
 ```{r load-packages, message=FALSE}
 library(tidyverse) 
 library(tidymodels)
+library(infer)
 library(openintro)
+library(Hmisc)
+library(psych)
+library(plyr)
+library(boot)
+data(ncbirths)
+?ncbirths
+
+
 ```
 
 ### Exercise 1
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r}
+
+multi.hist(ncbirths[,sapply(ncbirths, is.numeric)])
+
+
+```
+cases are births recorded in NC, there are 1000 cases
+
 
 ### Exercise 2
 
-...
+```{r}
 
-Add exercise headings as needed.
+ncbirths_white <- ncbirths %>% 
+  filter(whitemom == "white")
+
+mean(ncbirths_white$weight)
+
+```
+### Exercise 3
+
+```{r}
+
+# save resulting bootstrap distribution
+boot_df <- ncbirths_white %>%
+  # specify the variable of interest
+  specify(response = weight) %>% 
+  # generate 15000 bootstrap samples
+  generate(reps = 35000, type = "bootstrap") %>% 
+  # calculate the mean of each bootstrap sample
+  calculate(stat = "mean")
+
+boot_df
+
+mean(boot_df$stat)
+
+ggplot(data = boot_df, mapping = aes(x = stat)) +
+  geom_histogram(bins = 30, color = "#000000", fill = "#0099F8") + theme_classic() + labs(title = "A Bootstrap Distribution of Sample Means", subtitle = "Replicates = 35000")
+
+
+boot_n <- boot_df %>%
+  mutate(null = stat
+         + 0.179406)
+
+mean(boot_n$null)
+
+```
+
+### Exercise 4
+
+```{r}
+
+
+ggplot(data = boot_n, mapping = aes(x = null)) +
+  geom_histogram(bins = 30,  color = "#000000", fill = "#0099F8") + theme_classic() + labs(title = "A Null Distribution of Sample Means") 
+
+t.test(boot_n$stat, boot_n$null)
+
+
+```
+
+There is a significant difference in baby weights between 1995 and after. 
+
+### Exercise 5
+
+```{r}
+
+ncbirths_clean <- ncbirths %>%
+  filter(habit != "" & weight != "")
+
+
+```
+
+### Exercise 6
+
+```{r}
+
+ggplot(data = ncbirths_clean, aes(x= habit, y= weight)) + geom_boxplot(fill = "#0099F8") + theme_classic()
+
+```
+
+
+### Exercise 7
+
+```{r}
+
+ncbirths_clean %>%
+  group_by(habit) %>%
+  summarise(mean_weight = mean(weight))
+
+```
+
+### Exercise 8
+
+H0: nonsmokers and smokers' babies have the same weight on average ( μ 1 = μ 2 ), HA: nonsmokers and smokers' babies do not have the same weight on average ( μ 1 ≠ μ 2 )
+
+
+### Exercise 9
+
+```{r}
+
+t.test(ncbirths_clean$weight ~ ncbirths_clean$habit)
+
+```
+p = .019, so there is a significant difference in baby weights between smokers and nonsmokers. Looking at the means, nonsmokers' babies weigh more than smokers'. 
+
+### Exercise 10
+
+95 percent confidence interval:
+ 0.05151165 0.57957328
+ 
+### Exercise 11
+
+```{r}
+
+ggplot(data = ncbirths, aes(x =mature, y =mage)) + geom_count(color = "#0099F8", alpha = 0.3) + theme_classic()
+
+ggplot(data = ncbirths, aes(x =lowbirthweight, y =weight)) + geom_count(color = "#0099F8", alpha = 0.1) + theme_classic()
+
+```
+My method is to plot the data then view the file. It looks like the mom's age at 35 is the cutoff, below 35 are considered younger moms, 35 and above are considered mature moms. 
+For low weight, it looks like 5.5 is the cut off, 5.5 and below are considered low weight, above 5.5 are considered not low weight. 
+
+### Exercise 12
+
+```{r}
+
+#H0: the proportion of low birth weight babies for younger mothers is the same as for mature mothers. HA: the proportion of low birth weight babies is higher for mature mothers than for younger mothers.
+
+
+
+
+```
+
