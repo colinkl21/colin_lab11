@@ -89,7 +89,6 @@ library(boot)
 
 ``` r
 data(ncbirths)
-?ncbirths
 ```
 
 ### Exercise 1
@@ -131,23 +130,23 @@ boot_df
     ## # A tibble: 35,000 × 2
     ##    replicate  stat
     ##        <int> <dbl>
-    ##  1         1  7.31
-    ##  2         2  7.22
-    ##  3         3  7.27
-    ##  4         4  7.35
+    ##  1         1  7.28
+    ##  2         2  7.27
+    ##  3         3  7.22
+    ##  4         4  7.21
     ##  5         5  7.26
-    ##  6         6  7.27
-    ##  7         7  7.30
-    ##  8         8  7.25
-    ##  9         9  7.24
-    ## 10        10  7.33
+    ##  6         6  7.16
+    ##  7         7  7.27
+    ##  8         8  7.26
+    ##  9         9  7.20
+    ## 10        10  7.22
     ## # ℹ 34,990 more rows
 
 ``` r
 mean(boot_df$stat)
 ```
 
-    ## [1] 7.250477
+    ## [1] 7.25127
 
 ``` r
 ggplot(data = boot_df, mapping = aes(x = stat)) +
@@ -164,7 +163,7 @@ boot_n <- boot_df %>%
 mean(boot_n$null)
 ```
 
-    ## [1] 7.429883
+    ## [1] 7.430676
 
 ### Exercise 4
 
@@ -183,13 +182,13 @@ t.test(boot_n$stat, boot_n$null)
     ##  Welch Two Sample t-test
     ## 
     ## data:  boot_n$stat and boot_n$null
-    ## t = -448.46, df = 69998, p-value < 2.2e-16
+    ## t = -444.71, df = 69998, p-value < 2.2e-16
     ## alternative hypothesis: true difference in means is not equal to 0
     ## 95 percent confidence interval:
-    ##  -0.1801901 -0.1786219
+    ##  -0.1801967 -0.1786153
     ## sample estimates:
     ## mean of x mean of y 
-    ##  7.250477  7.429883
+    ##  7.251270  7.430676
 
 There is a significant difference in baby weights between 1995 and
 after.
@@ -275,4 +274,31 @@ not low weight.
 
 ``` r
 #H0: the proportion of low birth weight babies for younger mothers is the same as for mature mothers. HA: the proportion of low birth weight babies is higher for mature mothers than for younger mothers.
+
+ncbirths %>%
+  filter(mature == "younger mom") %>%
+  group_by( lowbirthweight ) %>%
+  dplyr::summarise(percent = 100 * n() / nrow(ncbirths))
 ```
+
+    ## # A tibble: 2 × 2
+    ##   lowbirthweight percent
+    ##   <fct>            <dbl>
+    ## 1 low                9.3
+    ## 2 not low           77.4
+
+``` r
+ncbirths %>%
+  filter(mature == "mature mom") %>%
+  group_by( lowbirthweight ) %>%
+  dplyr::summarise( percent = 100 * n() / nrow( ncbirths ) )
+```
+
+    ## # A tibble: 2 × 2
+    ##   lowbirthweight percent
+    ##   <fct>            <dbl>
+    ## 1 low                1.8
+    ## 2 not low           11.5
+
+I feel like my code for the last assignment is not really correct :( but
+I did it to my best ability

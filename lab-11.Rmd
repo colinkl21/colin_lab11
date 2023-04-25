@@ -17,7 +17,6 @@ library(psych)
 library(plyr)
 library(boot)
 data(ncbirths)
-?ncbirths
 
 
 ```
@@ -153,8 +152,18 @@ For low weight, it looks like 5.5 is the cut off, 5.5 and below are considered l
 
 #H0: the proportion of low birth weight babies for younger mothers is the same as for mature mothers. HA: the proportion of low birth weight babies is higher for mature mothers than for younger mothers.
 
+ncbirths %>%
+  filter(mature == "younger mom") %>%
+  group_by( lowbirthweight ) %>%
+  dplyr::summarise(percent = 100 * n() / nrow(ncbirths))
 
+  
+ncbirths %>%
+  filter(mature == "mature mom") %>%
+  group_by( lowbirthweight ) %>%
+  dplyr::summarise( percent = 100 * n() / nrow( ncbirths ) )
 
 
 ```
 
+I feel like my code for the last assignment is not really correct :( but I did it to my best ability
